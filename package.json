@@ -1,0 +1,36 @@
+{
+  "name": "easyfit-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch src/server.ts",
+    "knex": "node --no-warnings --loader tsx ./node_modules/knex/bin/cli.js",
+    "build": "tsup src --out-dir build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dandaraestrela/easyfit-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dandaraestrela/easyfit-api/issues"
+  },
+  "homepage": "https://github.com/Dandaraestrela/easyfit-api#readme",
+  "devDependencies": {
+    "tsup": "^7.1.0",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@types/node": "^20.3.3",
+    "dotenv": "^16.3.1",
+    "fastify": "^4.19.2",
+    "knex": "^2.4.2",
+    "sqlite3": "^5.1.6",
+    "zod": "^3.21.4"
+  }
+}
