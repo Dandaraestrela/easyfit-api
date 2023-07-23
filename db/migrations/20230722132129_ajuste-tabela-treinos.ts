@@ -1,0 +1,48 @@
+import { Knex } from "knex";
+
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.dropTable("workouts");
+  await knex.schema.dropTable("personal_trainers");
+  await knex.schema.dropTable("clients");
+  await knex.schema.dropTable("exercise");
+
+  await knex.schema.createTable("workouts", (table) => {
+    table.uuid("id").primary(),
+      table.timestamp("createdAt").defaultTo(knex.fn.now()),
+      table.string("name").notNullable(),
+      table
+        .uuid("personal_id")
+        .notNullable()
+        .references("id")
+        .inTable("personal_trainers")
+        .onDelete("CASCADE"),
+      table
+        .uuid("client_id")
+        .notNullable()
+        .references("id")
+        .inTable("clients")
+        .onDelete("CASCADE"),
+      table.integer("executed").notNullable();
+  });
+
+  await knex.schema.createTable("personal_trainers", (table) => {
+    table.uuid("id").primary(),
+      table.timestamp("createdAt").defaultTo(knex.fn.now()),
+      table.string("username").notNullable(),
+      table.string("password").notNullable(),
+      table.string("name").notNullable().index();
+  });
+
+  await knex.schema.createTableLike("clients", "personal_trainers");
+
+  await knex.schema.createTable("exercise", (table) => {
+    table.uuid("id").primary(),
+      table.string("name").notNullable(),
+      table.string("repetitions").notNullable(),
+      table.string("link").notNullable(),
+      table.string("breathing").notNullable(),
+      table.string("description").notNullable();
+  });
+}
+
+export async function down(knex: Knex): Promise<void> {}
