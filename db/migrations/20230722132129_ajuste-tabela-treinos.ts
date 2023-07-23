@@ -14,14 +14,8 @@ export async function up(knex: Knex): Promise<void> {
         .uuid("personal_id")
         .notNullable()
         .references("id")
-        .inTable("personal_trainers")
-        .onDelete("CASCADE"),
-      table
-        .uuid("client_id")
-        .notNullable()
-        .references("id")
-        .inTable("clients")
-        .onDelete("CASCADE"),
+        .inTable("personal_trainers"),
+      table.uuid("client_id").notNullable().references("id").inTable("clients"),
       table.integer("executed").notNullable();
   });
 
