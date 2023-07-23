@@ -1,10 +1,8 @@
 import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
-  await knex.schema.dropTable("workouts");
   await knex.schema.dropTable("personal_trainers");
   await knex.schema.dropTable("clients");
-  await knex.schema.dropTable("exercise");
 
   await knex.schema.createTable("workouts", (table) => {
     table.uuid("id").primary(),
