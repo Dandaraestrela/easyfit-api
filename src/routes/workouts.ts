@@ -16,6 +16,37 @@ export async function workoutRoutes(app: FastifyInstance) {
     });
   });
 
+  app.get("/workouts/:id", async (request, reply) => {
+    const getWorkoutParamsSchema = z.object({
+      id: z.string().uuid(),
+    });
+
+    const { id } = getWorkoutParamsSchema.parse(request.params);
+
+    const workout = await knex("workouts").where("id", id).first();
+
+    if (!workout) reply.code(400).send("Esse treino não existe.");
+
+    let exercises = [];
+
+    const exercisesIds = await knex("workout_exercises")
+      .where("workout_id", id)
+      .select("exercise_id");
+
+    for (const exerciseId of exercisesIds) {
+      const exercise = await knex("exercise")
+        .where("id", exerciseId.exercise_id)
+        .first();
+
+      exercises.push(exercise);
+    }
+
+    reply.code(200).send({
+      ...workout,
+      exercises,
+    });
+  });
+
   // Get de todos os treinos de determinado cliente
   app.get("/workouts/client:clientId", async (request, reply) => {
     const workoutClientIdSchema = z.object({
@@ -239,13 +270,5 @@ export async function workoutRoutes(app: FastifyInstance) {
     await knex("workouts").where("id", workoutId).del();
 
     reply.status(200);
-  });
-
-  app.delete("/tudo", async (request, reply) => {
-    //await knex("personal_trainers").select("*").del();
-    //await knex("clients").select("*").del();
-    await knex("workouts").select("*").del();
-    await knex("exercise").select("*").del();
-    await knex("workout_exercises").select("*").del();
   });
 }

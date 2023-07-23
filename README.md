@@ -17,6 +17,9 @@ npx knex migrate:make nome-da-migration
 [x] Listagem de clientes
 [x] Listagem de treinos de um personal
 [x] Listagem de treinos de um cliente
+[x] Get de um treino específico
+[x] Get de clientes de um personal
+[x] Get de workout details + exercises para personal editar
 
 [x] Deleção de usuário cliente
 [x] Deleção de treino

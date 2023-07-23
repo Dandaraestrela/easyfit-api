@@ -12,7 +12,13 @@ export async function up(knex: Knex): Promise<void> {
       table.string("name").notNullable().index();
   });
 
-  await knex.schema.createTableLike("clients", "personal_trainers");
+  await knex.schema.createTable("clients", (table) => {
+    table.uuid("id").primary(),
+      table.timestamp("createdAt").defaultTo(knex.fn.now()),
+      table.string("username").notNullable(),
+      table.string("password").notNullable(),
+      table.string("name").notNullable().index();
+  });
 
   await knex.schema.createTable("workouts", (table) => {
     table.uuid("id").primary(),

@@ -15,6 +15,7 @@ declare module "knex/types/tables" {
       username: string;
       password: string;
       name: string;
+      personal_id: string;
     };
     workouts: {
       id: string;

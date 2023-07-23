@@ -13,9 +13,24 @@ export async function userRegistrationRoutes(app: FastifyInstance) {
   });
 
   // Get de todos os clientes do sistema
-  app.get("/clients", async (request) => {
+  app.get("/clients", async (request, reply) => {
     const clients = await knex("clients").select("*");
     return { clients };
+  });
+
+  // Get de clientes de um personal
+  app.get("/personals/clients:personalId", async (request, reply) => {
+    try {
+      const personalIdSchema = z.object({
+        personalId: z.string(),
+      });
+
+      const { personalId } = personalIdSchema.parse(request.query);
+      const clients = await knex("clients").where("personal_id", personalId);
+      return { clients };
+    } catch (err) {
+      reply.status(400);
+    }
   });
 
   // Get de personal por id
@@ -68,15 +83,23 @@ export async function userRegistrationRoutes(app: FastifyInstance) {
       request.body
     );
 
-    await knex("personal_trainers").insert({
-      id: randomUUID(),
-      createdAt: knex.fn.now(),
-      username,
-      password,
-      name,
-    });
+    const usernameAlreadyExists = await knex("personal_trainers")
+      .where("username", username)
+      .first();
 
-    return reply.status(201).send();
+    if (usernameAlreadyExists) {
+      reply.status(400);
+    } else {
+      await knex("personal_trainers").insert({
+        id: randomUUID(),
+        createdAt: knex.fn.now(),
+        username,
+        password,
+        name,
+      });
+
+      reply.status(201).send();
+    }
   });
 
   // Criação de cliente
@@ -85,21 +108,34 @@ export async function userRegistrationRoutes(app: FastifyInstance) {
       username: z.string(),
       password: z.string(),
       name: z.string(),
+      personal_id: z.string(),
     });
 
-    const { username, password, name } = createClientBodySchema.parse(
-      request.body
-    );
+    const { username, password, name, personal_id } =
+      createClientBodySchema.parse(request.body);
 
-    await knex("clients").insert({
-      id: randomUUID(),
-      createdAt: knex.fn.now(),
-      username,
-      password,
-      name,
-    });
+    const usernameAlreadyExists = await knex("clients")
+      .where({ username, personal_id })
+      .first();
 
-    return reply.status(201).send();
+    const personalExists = await knex("personal_trainers")
+      .where("id", personal_id)
+      .first();
+
+    if (personalExists && !usernameAlreadyExists) {
+      await knex("clients").insert({
+        id: randomUUID(),
+        createdAt: knex.fn.now(),
+        username,
+        password,
+        name,
+        personal_id,
+      });
+
+      reply.status(201).send();
+    } else {
+      reply.status(400);
+    }
   });
 
   // Reset de senha de cliente
@@ -121,9 +157,9 @@ export async function userRegistrationRoutes(app: FastifyInstance) {
         .where("id", clientId)
         .update({ password: newPassword });
 
-      return reply.status(201).send();
+      reply.status(201).send();
     } catch (err) {
-      return reply.status(400);
+      reply.status(400);
     }
   });
 
@@ -165,7 +201,7 @@ export async function userRegistrationRoutes(app: FastifyInstance) {
 
       reply.status(200);
     } catch (err) {
-      return reply.status(400);
+      reply.status(400);
     }
   });
 }
