@@ -4,6 +4,16 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.dropTable("personal_trainers");
   await knex.schema.dropTable("clients");
 
+  await knex.schema.createTable("personal_trainers", (table) => {
+    table.uuid("id").primary(),
+      table.timestamp("createdAt").defaultTo(knex.fn.now()),
+      table.string("username").notNullable(),
+      table.string("password").notNullable(),
+      table.string("name").notNullable().index();
+  });
+
+  await knex.schema.createTableLike("clients", "personal_trainers");
+
   await knex.schema.createTable("workouts", (table) => {
     table.uuid("id").primary(),
       table.timestamp("createdAt").defaultTo(knex.fn.now()),
@@ -17,16 +27,6 @@ export async function up(knex: Knex): Promise<void> {
       table.integer("executed").notNullable();
   });
 
-  await knex.schema.createTable("personal_trainers", (table) => {
-    table.uuid("id").primary(),
-      table.timestamp("createdAt").defaultTo(knex.fn.now()),
-      table.string("username").notNullable(),
-      table.string("password").notNullable(),
-      table.string("name").notNullable().index();
-  });
-
-  await knex.schema.createTableLike("clients", "personal_trainers");
-
   await knex.schema.createTable("exercise", (table) => {
     table.uuid("id").primary(),
       table.string("name").notNullable(),
@@ -34,6 +34,15 @@ export async function up(knex: Knex): Promise<void> {
       table.string("link").notNullable(),
       table.string("breathing").notNullable(),
       table.string("description").notNullable();
+  });
+
+  await knex.schema.createTable("workout_exercises", (table) => {
+    table.uuid("workout_id").notNullable().references("id").inTable("workouts"),
+      table
+        .uuid("exercise_id")
+        .notNullable()
+        .references("id")
+        .inTable("exercise");
   });
 }
 
